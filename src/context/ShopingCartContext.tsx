@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
     CartItemProps,
     ShoppingCartContextProps,
@@ -6,10 +6,15 @@ import {
 } from "../types/types";
 
 const contextDefaultValues: ShoppingCartContextProps = {
+    quantity: 0,
+    isOpen: false,
+    openCart: () => {},
+    closeCart: () => {},
     getItemQuantity: () => 0,
     incrementCartQuantity: () => {},
     decrementCartQuantity: () => {},
     removeFromCart: () => {},
+    CartItems: [],
 };
 
 const ShoppingCartContext =
@@ -21,13 +26,22 @@ export function useShoppingCart() {
 
 export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
     const [CartItems, setCartItems] = useState<CartItemProps[]>([]);
+    const [quantity, setQuantity] = useState<number>(0);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+
+    useEffect(() => {
+        setQuantity(CartItems.length);
+    }, [CartItems]);
 
     const getItemQuantity = (id: number) => {
         return CartItems.find((item) => item.id === id)?.quantity || 0;
     };
+
     const incrementCartQuantity = (id: number) => {
         setCartItems((prev) => {
             if (prev.find((item) => item.id === id) == null) {
+                return [...prev, { id, quantity: 1 }];
+            } else {
                 return prev.map((item) => {
                     if (item.id === id) {
                         return { ...item, quantity: item.quantity + 1 };
@@ -35,11 +49,10 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
                         return item;
                     }
                 });
-            } else {
-                return [...prev, { id, quantity: 1 }];
             }
         });
     };
+
     const decrementCartQuantity = (id: number) => {
         setCartItems((prev) => {
             const Item = prev.find((item) => item.id === id);
@@ -62,13 +75,26 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
         return CartItems.filter((item) => item.id !== id);
     };
 
+    const openCart = () => {
+        setIsOpen(true);
+    };
+
+    const closeCart = () => {
+        setIsOpen(false);
+    };
+
     return (
         <ShoppingCartContext.Provider
             value={{
+                isOpen,
+                quantity,
+                openCart,
+                closeCart,
                 getItemQuantity,
                 decrementCartQuantity,
                 incrementCartQuantity,
                 removeFromCart,
+                CartItems,
             }}
         >
             {children}

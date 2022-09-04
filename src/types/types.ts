@@ -11,12 +11,17 @@ export type ShoppingCartProviderProps={
     children:ReactNode;
 }
 
-export type ShoppingCartContextProps={
-    getItemQuantity:(id:number) => number;
-    incrementCartQuantity:(id:number)=>void;
-    decrementCartQuantity:(id:number)=>void;
-    removeFromCart:(id:number)=>void;
-}
+export type ShoppingCartContextProps = {
+    CartItems: CartItemProps[]
+    quantity: number;
+    isOpen: boolean;
+    openCart: () => void;
+    closeCart: () => void;
+    getItemQuantity: (id: number) => number;
+    incrementCartQuantity: (id: number) => void;
+    decrementCartQuantity: (id: number) => void;
+    removeFromCart: (id: number) => void;
+};
 
 export type CartItemProps={
     id:number;
